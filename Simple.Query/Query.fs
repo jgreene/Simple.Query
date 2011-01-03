@@ -104,30 +104,30 @@ let batch = BatchBuilder((None : unit option), new ResizeArray<Expr>())
 
 module Session =
 
-        open System
-        open System.Data.Common
+    open System
+    open System.Data.Common
 
-        type database =
-        | Postgres
+    type database =
+    | Postgres
 
-        type Session(connString:string, db:database) =
+    type Session(connString:string, db:database) =
     
-            let connection = new Npgsql.NpgsqlConnection(connString)
-            do connection.Open() |> ignore
-            let trans = connection.BeginTransaction()
+        let connection = new Npgsql.NpgsqlConnection(connString)
+        do connection.Open() |> ignore
+        let trans = connection.BeginTransaction()
     
     
 
-            interface ISession with
-                override this.Execute(select) =
-                    Seq.empty
+        interface ISession with
+            override this.Execute(select) =
+                Seq.empty
 
-            interface IDisposable with
-                override this.Dispose() =
-                    trans.Commit()
-                    connection.Dispose()
+        interface IDisposable with
+            override this.Dispose() =
+                trans.Commit()
+                connection.Dispose()
 
 open Session
 let getSession (connString:string) =
-    (fun () -> new Session(connString, Postgres))
+    (fun () -> new Session(connString, Postgres) :> ISession)
 
